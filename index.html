@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Электронный дневник · Заполнение</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #eef2f7 0%, #d9e2ec 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      max-width: 780px;
+      width: 100%;
+      border-radius: 42px;
+      padding: 40px 45px;
+      box-shadow: 0 25px 50px -10px rgba(0, 20, 30, 0.25),
+                  inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #1e2b3a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    h1 span {
+      background: #1e2b3a;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 500;
+      padding: 6px 18px;
+      border-radius: 60px;
+      letter-spacing: 0.3px;
+    }
+
+    .subhead {
+      color: #54708f;
+      font-size: 1rem;
+      margin-bottom: 32px;
+      border-left: 5px solid #9fb9d0;
+      padding-left: 18px;
+      font-weight: 400;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      background: #f2f6fa;
+      border-radius: 24px;
+      padding: 4px 8px 4px 24px;
+      transition: 0.2s;
+      border: 2px solid transparent;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .name-row:focus-within {
+      border-color: #527a9b;
+      background: #ffffff;
+      box-shadow: 0 6px 16px rgba(43, 85, 120, 0.12);
+    }
+
+    .name-row label {
+      font-weight: 500;
+      color: #2e4a66;
+      width: 55px;
+      font-size: 1.1rem;
+      opacity: 0.8;
+    }
+
+    .name-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 18px 10px 18px 6px;
+      font-size: 1.1rem;
+      color: #0e1e2e;
+      outline: none;
+      font-weight: 450;
+      letter-spacing: 0.2px;
+      min-width: 0;
+    }
+
+    .name-row input::placeholder {
+      color: #9bb1c7;
+      font-weight: 350;
+      font-style: italic;
+    }
+
+    .button-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .next-btn {
+      background: #1e3b4f;
+      color: white;
+      border: none;
+      padding: 20px 48px;
+      border-radius: 60px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 20px -8px rgba(22, 50, 70, 0.4);
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .next-btn:hover {
+      background: #14313f;
+      box-shadow: 0 18px 28px -8px rgba(20, 50, 70, 0.5);
+    }
+
+    .next-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 8px 14px -6px #0e2633;
+    }
+
+    .next-btn::after {
+      content: "→";
+      font-size: 1.8rem;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+
+    .next-btn:hover::after {
+      transform: translateX(5px);
+    }
+
+    .teachers-panel {
+      margin-top: 40px;
+      border-top: 2px dashed #b8d0e3;
+      padding-top: 32px;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.45s ease, max-height 0.6s ease, margin-top 0.3s;
+      pointer-events: none;
+    }
+
+    .teachers-panel.visible {
+      opacity: 1;
+      max-height: 2000px;
+      pointer-events: auto;
+      margin-top: 30px;
+    }
+
+    .teachers-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #1d3b4e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .teachers-title .badge {
+      background: #cbdbe8;
+      color: #1d3b4e;
+      font-size: 0.9rem;
+      padding: 5px 16px;
+      border-radius: 50px;
+      font-weight: 500;
+    }
+
+    .teacher-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .teacher-item {
+      background: #f1f6fb;
+      padding: 16px 24px;
+      border-radius: 18px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #1f405b;
+      border-left: 8px solid #7899b6;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s;
+    }
+
+    .teacher-item:hover {
+      background: #e4eef7;
+    }
+
+    .teacher-item .icon {
+      font-size: 1.5rem;
+      opacity: 0.7;
+    }
+
+    .teacher-item .name {
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .details-button-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .details-btn {
+      background: linear-gradient(135deg, #4f7ea8 0%, #2d5473 100%);
+      color: white;
+      border: none;
+      padding: 18px 44px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 22px -8px rgba(40, 80, 110, 0.5);
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .details-btn:hover {
+      background: linear-gradient(135deg, #5f8eb8 0%, #3a6689 100%);
+      box-shadow: 0 18px 30px -8px rgba(40, 80, 110, 0.6);
+    }
+
+    .details-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 8px 14px -6px #1f3c50;
+    }
+
+    .details-btn .arrow {
+      font-size: 1.4rem;
+      transition: transform 0.25s;
+    }
+
+    .details-btn:hover .arrow {
+      transform: translateY(3px);
+    }
+
+    .gallery-panel {
+      margin-top: 0;
+      padding-top: 0;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.5s ease, max-height 0.7s ease, margin-top 0.3s, padding-top 0.3s;
+      pointer-events: none;
+    }
+
+    .gallery-panel.visible {
+      opacity: 1;
+      max-height: 4000px;
+      pointer-events: auto;
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 2px dashed #b8d0e3;
+    }
+
+    .gallery-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1d3b4e;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .gallery-item {
+      background: #f2f6fa;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(20, 50, 70, 0.1);
+      border: 2px solid #e0ecf5;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 26px rgba(20, 50, 70, 0.18);
+    }
+
+    .gallery-item .img-wrap {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      overflow: hidden;
+      background: #dbe6ef;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .sick-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      animation: sickFloat 3s ease-in-out infinite;
+    }
+
+    .sick-overlay .sick-emoji {
+      font-size: 3.2rem;
+      filter: drop-shadow(0 4px 10px rgba(80, 0, 60, 0.55));
+      line-height: 1;
+    }
+
+    .sick-overlay .sick-emoji.small {
+      font-size: 2rem;
+      position: absolute;
+    }
+
+    .sick-overlay .sick-emoji.pos-tl { top: 12px; left: 14px; transform: rotate(-15deg); }
+    .sick-overlay .sick-emoji.pos-tr { top: 16px; right: 14px; transform: rotate(12deg); font-size: 2.4rem; }
+    .sick-overlay .sick-emoji.pos-bl { bottom: 14px; left: 18px; transform: rotate(10deg); font-size: 2.4rem; }
+    .sick-overlay .sick-emoji.pos-br { bottom: 12px; right: 16px; transform: rotate(-10deg); }
+    .sick-overlay .sick-emoji.center { font-size: 3.6rem; }
+
+    @keyframes sickFloat {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.9; }
+      50% { transform: translateY(-8px) scale(1.08); opacity: 1; }
+    }
+
+    .gallery-item .caption {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #2e4a66;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .hint {
+      color: #6c8ca5;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      font-weight: 400;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hint span {
+      background: #e6eef6;
+      padding: 4px 14px;
+      border-radius: 30px;
+    }
+
+    .school-btn-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .school-btn {
+      background: linear-gradient(135deg, #8b3a3a 0%, #5c1f1f 100%);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 60px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 22px -8px rgba(90, 30, 30, 0.5);
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      text-align: center;
+    }
+
+    .school-btn:hover {
+      background: linear-gradient(135deg, #a34646 0%, #702626 100%);
+      box-shadow: 0 18px 30px -8px rgba(90, 30, 30, 0.6);
+    }
+
+    .school-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 8px 14px -6px #3a1010;
+    }
+
+    .school-btn .arrow {
+      font-size: 1.3rem;
+      transition: transform 0.25s;
+    }
+
+    .school-btn:hover .arrow {
+      transform: translateY(3px);
+    }
+
+    .school-panel {
+      margin-top: 0;
+      padding-top: 0;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.5s ease, max-height 0.7s ease, margin-top 0.3s, padding-top 0.3s;
+      pointer-events: none;
+    }
+
+    .school-panel.visible {
+      opacity: 1;
+      max-height: 4000px;
+      pointer-events: auto;
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 2px dashed #d9b8b8;
+    }
+
+    .school-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #5c1f1f;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .school-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .school-item {
+      background: #fdf2f2;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(90, 30, 30, 0.1);
+      border: 2px solid #f0dada;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .school-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 26px rgba(90, 30, 30, 0.18);
+    }
+
+    .school-item img {
+      width: 100%;
+      height: 240px;
+      display: block;
+      object-fit: cover;
+      background: #ecdcdc;
+    }
+
+    .school-item .caption {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #5c1f1f;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .school-note {
+      background: #fff3f3;
+      border: 2px dashed #c96a6a;
+      color: #7a1f1f;
+      padding: 22px 26px;
+      border-radius: 20px;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.6;
+      letter-spacing: 0.3px;
+    }
+
+    .school-note .big {
+      font-size: 1.4rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .school-note .warn {
+      font-size: 1.05rem;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    .forward-btn-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 2px dashed #b8d0e3;
+    }
+
+    .forward-btn {
+      background: #1e3b4f;
+      color: white;
+      border: none;
+      padding: 20px 52px;
+      border-radius: 60px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 20px -8px rgba(22, 50, 70, 0.4);
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .forward-btn:hover {
+      background: #14313f;
+      box-shadow: 0 18px 28px -8px rgba(20, 50, 70, 0.5);
+    }
+
+    .forward-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 8px 14px -6px #0e2633;
+    }
+
+    .forward-btn::after {
+      content: "→";
+      font-size: 1.7rem;
+      line-height: 1;
+      transition: transform 0.2s;
+    }
+
+    .forward-btn:hover::after {
+      transform: translateX(5px);
+    }
+
+    .error-panel {
+      margin-top: 0;
+      padding-top: 0;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.5s ease, max-height 0.6s ease, margin-top 0.3s, padding-top 0.3s;
+      pointer-events: none;
+    }
+
+    .error-panel.visible {
+      opacity: 1;
+      max-height: 500px;
+      pointer-events: auto;
+      margin-top: 28px;
+      padding-top: 24px;
+    }
+
+    .error-box {
+      background: linear-gradient(135deg, #ffe5e5 0%, #ffcaca 100%);
+      border: 2px solid #d64545;
+      border-radius: 22px;
+      padding: 28px 30px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 10px 26px -10px rgba(180, 40, 40, 0.4);
+      animation: errorShake 0.5s ease;
+    }
+
+    @keyframes errorShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .error-box .error-icon {
+      font-size: 2.8rem;
+      flex-shrink: 0;
+      filter: drop-shadow(0 3px 4px rgba(120, 0, 0, 0.3));
+    }
+
+    .error-box .error-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #8a1a1a;
+      line-height: 1.5;
+      letter-spacing: 0.2px;
+    }
+
+    .error-box .error-text .sub {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #a33a3a;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 560px) {
+      .card { padding: 26px 22px; border-radius: 30px; }
+      h1 { font-size: 1.6rem; }
+      h1 span { font-size: 0.95rem; padding: 4px 12px; }
+      .next-btn { padding: 16px 32px; font-size: 1.1rem; }
+      .details-btn, .school-btn { padding: 15px 26px; font-size: 1rem; }
+      .forward-btn { padding: 16px 34px; font-size: 1.05rem; }
+      .gallery-item .img-wrap { height: 200px; }
+      .school-item img { height: 190px; }
+      .sick-overlay .sick-emoji { font-size: 2.4rem; }
+      .sick-overlay .sick-emoji.center { font-size: 2.8rem; }
+      .error-box { flex-direction: column; text-align: center; padding: 22px 20px; }
+      .error-box .error-text { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>
+      📘 Электронный дневник
+      <span>без оценок</span>
+    </h1>
+    <div class="subhead">
+      Заполните имена одноклассников — потом нажмите «Далее»
+    </div>
+
+    <div class="field-group" id="classmatesFields">
+      <div class="name-row"><label>1.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>2.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>3.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>4.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>5.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>6.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>7.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>8.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>9.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+      <div class="name-row"><label>10.</label><input type="text" placeholder="Имя и фамилия одноклассника" autocomplete="off"></div>
+    </div>
+
+    <div class="button-wrap">
+      <button class="next-btn" id="nextBtn">Далее</button>
+    </div>
+
+    <!-- Панель с учителями -->
+    <div class="teachers-panel" id="teachersPanel">
+      <div class="teachers-title">
+        👩‍🏫 Учителя
+        <span class="badge">список</span>
+      </div>
+      <div class="hint">
+        <span>как в расписании</span>
+        <span>все имена</span>
+      </div>
+      <div class="teacher-list" id="teacherList"></div>
+
+      <div class="details-button-wrap">
+        <button class="details-btn" id="detailsBtn">
+          Узнать подробнее
+          <span class="arrow">↓</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Панель с фото учителей -->
+    <div class="gallery-panel" id="galleryPanel">
+      <div class="gallery-title">
+        🖼️ Подробнее
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+
+      <div class="school-btn-wrap">
+        <button class="school-btn" id="schoolBtn">
+          🏫 Узнать всю информацию про школу
+          <span class="arrow">↓</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Панель с информацией о школе -->
+    <div class="school-panel" id="schoolPanel">
+      <div class="school-title">
+        🏫 Аксаковская школа
+      </div>
+      <div class="school-grid" id="schoolGrid"></div>
+      <div class="school-note">
+        <span class="big">Аксаковская школа</span>
+        <span class="warn">Может быть скоро захвачена.</span>
+      </div>
+    </div>
+
+    <!-- Кнопка "Пройти дальше" -->
+    <div class="forward-btn-wrap">
+      <button class="forward-btn" id="forwardBtn">Пройти дальше</button>
+    </div>
+
+    <!-- Панель с ошибкой -->
+    <div class="error-panel" id="errorPanel">
+      <div class="error-box">
+        <span class="error-icon">⛔</span>
+        <div class="error-text">
+          Ошибка, вы не имеете права смотреть дальше.
+          <span class="sub">Доступ запрещён.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const teachers = [
+        "Елена Владимировна",
+        "Алиса Валентиновна",
+        "Екатерина Константиновна",
+        "Трудовик"
+      ];
+
+      const galleryItems = [
+        { src: "photo1.jpg", caption: "Елена Владимировна", sick: false },
+        { src: "photo2.jpg", caption: "Алиса Валентиновна", sick: true },
+        { src: "photo3.jpg", caption: "Екатерина Константиновна", sick: false },
+        { src: "photo4.jpg", caption: "Земфира Чушпановна", sick: true }
+      ];
+
+      const schoolImages = [
+        { src: "school1.jpg", caption: "Аксаковская школа" },
+        { src: "school2.jpg", caption: "Школа" }
+      ];
+
+      const nextBtn = document.getElementById('nextBtn');
+      const teachersPanel = document.getElementById('teachersPanel');
+      const teacherList = document.getElementById('teacherList');
+      const detailsBtn = document.getElementById('detailsBtn');
+      const galleryPanel = document.getElementById('galleryPanel');
+      const galleryGrid = document.getElementById('galleryGrid');
+
+      const schoolBtn = document.getElementById('schoolBtn');
+      const schoolPanel = document.getElementById('schoolPanel');
+      const schoolGrid = document.getElementById('schoolGrid');
+
+      const forwardBtn = document.getElementById('forwardBtn');
+      const errorPanel = document.getElementById('errorPanel');
+
+      function renderTeachers() {
+        teacherList.innerHTML = '';
+        teachers.forEach((teacher) => {
+          const item = document.createElement('div');
+          item.className = 'teacher-item';
+          let icon = '📖';
+          if (teacher.includes('Трудовик')) icon = '🛠️';
+          else if (teacher.includes('Елена')) icon = '🌸';
+          else if (teacher.includes('Алиса')) icon = '🎨';
+          else if (teacher.includes('Екатерина')) icon = '📐';
+
+          item.innerHTML = `
+            <span class="icon">${icon}</span>
+            <span class="name">${teacher}</span>
+          `;
+          teacherList.appendChild(item);
+        });
+      }
+
+      function renderGallery() {
+        galleryGrid.innerHTML = '';
+        galleryItems.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'gallery-item';
+
+          const imgWrap = document.createElement('div');
+          imgWrap.className = 'img-wrap';
+
+          const img = document.createElement('img');
+          img.src = item.src;
+          img.alt = item.caption || 'Изображение';
+          img.loading = 'lazy';
+          imgWrap.appendChild(img);
+
+          if (item.sick) {
+            const overlay = document.createElement('div');
+            overlay.className = 'sick-overlay';
+
+            let emojis;
+            if (item.caption.includes('Алиса')) {
+              emojis = `
+                <span class="sick-emoji center">❤️</span>
+                <span class="sick-emoji small pos-tl">💕</span>
+                <span class="sick-emoji small pos-tr">💖</span>
+                <span class="sick-emoji small pos-bl">💗</span>
+                <span class="sick-emoji small pos-br">💝</span>
+              `;
+            } else if (item.caption.includes('Земфира')) {
+              emojis = `
+                <span class="sick-emoji center">🌹</span>
+                <span class="sick-emoji small pos-tl">🎸</span>
+                <span class="sick-emoji small pos-tr">🖤</span>
+                <span class="sick-emoji small pos-bl">💔</span>
+                <span class="sick-emoji small pos-br">🌙</span>
+              `;
+            } else {
+              emojis = `
+                <span class="sick-emoji center">🤮</span>
+                <span class="sick-emoji small pos-tl">🤢</span>
+                <span class="sick-emoji small pos-tr">🤢</span>
+                <span class="sick-emoji small pos-bl">🤮</span>
+                <span class="sick-emoji small pos-br">🤢</span>
+              `;
+            }
+
+            overlay.innerHTML = emojis;
+            imgWrap.appendChild(overlay);
+          }
+
+          card.appendChild(imgWrap);
+
+          if (item.caption) {
+            const cap = document.createElement('div');
+            cap.className = 'caption';
+            cap.textContent = item.caption;
+            card.appendChild(cap);
+          }
+
+          galleryGrid.appendChild(card);
+        });
+      }
+
+      function renderSchool() {
+        schoolGrid.innerHTML = '';
+        schoolImages.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'school-item';
+          card.innerHTML = `
+            <img src="${item.src}" alt="${item.caption || 'Изображение'}" loading="lazy">
+            ${item.caption ? `<div class="caption">${item.caption}</div>` : ''}
+          `;
+          schoolGrid.appendChild(card);
+        });
+      }
+
+      nextBtn.addEventListener('click', () => {
+        const inputs = document.querySelectorAll('#classmatesFields input');
+        const classmates = Array.from(inputs).map(inp => inp.value.trim()).filter(v => v !== '');
+        console.log('Введённые одноклассники:', classmates.length ? classmates : '— пусто —');
+        renderTeachers();
+        teachersPanel.classList.add('visible');
+        setTimeout(() => {
+          teachersPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      });
+
+      detailsBtn.addEventListener('click', () => {
+        renderGallery();
+        galleryPanel.classList.add('visible');
+        setTimeout(() => {
+          galleryPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      });
+
+      schoolBtn.addEventListener('click', () => {
+        renderSchool();
+        schoolPanel.classList.add('visible');
+        setTimeout(() => {
+          schoolPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      });
+
+      forwardBtn.addEventListener('click', () => {
+        errorPanel.classList.remove('visible');
+        void errorPanel.offsetWidth;
+        errorPanel.classList.add('visible');
+        setTimeout(() => {
+          errorPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      });
+
+      renderTeachers();
+      renderGallery();
+      renderSchool();
+    })();
+  </script>
+</body>
+</html>
